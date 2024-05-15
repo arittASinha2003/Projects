@@ -1,13 +1,17 @@
 
 # Library Management System
 
-This Python program implements a basic Library Management System. It allows users to perform various operations such as adding books, removing books, lending books, returning books, listing available books, listing overdue books, and showing active users. The program interacts with the MySQL database to store information about users, books, and issued books.
+This Python program implements a basic Library Management System. It allows users to perform various operations such as adding books, removing books, lending books, returning books, searching books by title, author, or genre, listing available books, listing overdue books, and showing active users. The program interacts with the MySQL database to store information about users, books, and issued books.
 
 ## Prerequisites
 
 - Python 3.x installed on the system. [Link](https://www.python.org/downloads/)
 - MySQL server installed and running. [Link](https://dev.mysql.com/downloads/)
-- Required Python packages: mysql-connector-python, tabulate
+- Required Python packages: mysql-connector-python, tabulate, python-dotenv
+- A database named ```library``` in MySQL. You can create a database bu running:
+```
+create database library
+```
 
 ## Package Installation
 
