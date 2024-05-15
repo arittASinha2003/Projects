@@ -41,6 +41,17 @@ pip install python-dotenv
 
 This package allows Python application to read key-value pairs from a .env file and add them to the environment variables.
 
+## Setting Up .env File
+
+Modify the below details as per your needs.
+
+```
+host = localhost
+user = root
+password = XXXX
+database = library
+```
+
 ## Usage
 
 For running the program, follow these steps:
