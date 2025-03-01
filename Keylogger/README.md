@@ -45,7 +45,9 @@ EMAIL_APP_PASSWORD=xxxx xxxx xxxx xxxx
 
 3. **Email Notification**: Every 30 minutes, the script will check if the file Keys123.txt has any content. If it does, it will send the file as an attachment to the recipient's email.
 
-4. The script will stop logging when the Page Down key is pressed.
+4. The script will stop logging when the `Page Down` key is pressed.
+
+5. Press `Ctrl-C` to fully terminate the program.
 
 ## Creating App Password for Google Account
 
