@@ -7,6 +7,8 @@ from email import encoders
 import time
 import os
 import threading
+from dotenv import load_dotenv
+load_dotenv()
 
 # Dictionary mapping keys to human-readable strings
 key_map = {
@@ -157,6 +159,10 @@ def send_email(file_path):
         subject = "Automated Key File"
         body = "Please find the attached file."
 
+        # App password for your Gmail account
+        # app_password = "xxxx xxxx xxxx xxxx"  # Replace with your generated app password
+        app_password = os.getenv("EMAIL_APP_PASSWORD")  # Replace in environment variable
+
         # Create the email container
         msg = MIMEMultipart()
         msg['From'] = from_email
@@ -179,7 +185,8 @@ def send_email(file_path):
             server = smtplib.SMTP('smtp.gmail.com', 587)
             server.starttls()  # Secure the connection
             # server.login(from_email, "Pass@123")  # Replace with your email password
-            server.login(from_email, os.getenv("EMAIL_PASSWORD")) # Replace in environment variable
+            # server.login(from_email, os.getenv("EMAIL_PASSWORD")) # Replace in environment variable
+            server.login(from_email, app_password)  # Using the app password here
             text = msg.as_string()
             server.sendmail(from_email, to_email, text)
             server.quit()
