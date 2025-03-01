@@ -47,6 +47,21 @@ EMAIL_APP_PASSWORD=xxxx xxxx xxxx xxxx
 
 4. The script will stop logging when the Page Down key is pressed.
 
+## Creating App Password for Google Account
+
+App Passwords allow you to use third-party applications (such as Python scripts) securely with Google services like Gmail, without exposing your main Google password.
+
+**Step 1: Enable Two-Factor Authentication (2FA) on Your Google Account.**
+- Visit Your Google Account Settings. [Link](https://myaccount.google.com/)
+- Go to Security Settings.
+- Enable 2-Step Verification.
+
+**Step 2: Generate an App Password.**
+- Go to the App Passwords Page. [Link](https://myaccount.google.com/apppasswords)
+- Type the app name and click on **Create**.
+
+**`Note`**: The App Password is a 16-character password and is only shown once. Make sure to copy and save it in a secure location.
+
 ## Warning
 
 Key loggers can be used maliciously to record sensitive information like passwords. This script is intended only for educational purposes. Do not use it to invade someone's privacy. Misuse of this script can result in criminal charges. The author is not responsible for any misuse of this script. Use it responsibly.
